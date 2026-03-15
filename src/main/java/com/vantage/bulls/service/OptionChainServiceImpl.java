@@ -2,6 +2,8 @@ package com.vantage.bulls.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vantage.bulls.dto.OptionChainResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -13,11 +15,12 @@ import java.util.Map;
 
 @Service("optionChainService")
 public class OptionChainServiceImpl implements OptionChainService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(OptionChainServiceImpl.class);
 
     private String hostName = "https://api.dhan.co";
     private String apiEndpoint = "/v2/optionchain";
     private String clientId = "1107674922";
-    private String accessToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJkaGFuIiwicGFydG5lcklkIjoiIiwiZXhwIjoxNzczMDY3NDQ4LCJpYXQiOjE3NzI5ODEwNDgsInRva2VuQ29uc3VtZXJUeXBlIjoiU0VMRiIsIndlYmhvb2tVcmwiOiIiLCJkaGFuQ2xpZW50SWQiOiIxMTA3Njc0OTIyIn0.wMBDr1LxFJFo_XQLDyl49iG4eFuCTzRLQSCi3f7q0g-NvctzYqaBNS8DY7Dv_2fxNyHlZeUE8i27puxohmZDRg";
+    private String accessToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJkaGFuIiwicGFydG5lcklkIjoiIiwiZXhwIjoxNzczNjYyNTY4LCJpYXQiOjE3NzM1NzYxNjgsInRva2VuQ29uc3VtZXJUeXBlIjoiU0VMRiIsIndlYmhvb2tVcmwiOiIiLCJkaGFuQ2xpZW50SWQiOiIxMTA3Njc0OTIyIn0.uTuID6lGlK-8lJ6KDmSbaU-BaoPcYQUGbBwpL_8qdeYfxtEdRvozBiYNe_445w2rLLa1kyoujoCF7AoeVO4XCA";
 
 
     @Override
@@ -25,7 +28,7 @@ public class OptionChainServiceImpl implements OptionChainService {
         OptionChainResponse optionChainResponse = null;
 
         String optionChainURL = hostName + apiEndpoint;
-        System.out.println("Option Chain URL: " + optionChainURL);
+        LOGGER.info("Option Chain URL: {}",optionChainURL);
         RestTemplate restTemplate = new RestTemplate();
 
         // Set headers for clientId and accessToken
@@ -38,13 +41,13 @@ public class OptionChainServiceImpl implements OptionChainService {
         Map<String, Object> requestMap = new HashMap<>();
         requestMap.put("UnderlyingScrip", 26000);
         requestMap.put("UnderlyingSeg", "NSE_FNO");
-        requestMap.put("Expiry", "2026-03-10");
+        requestMap.put("Expiry", "2026-03-17");
 
         // Convert map to JSON using Jackson ObjectMapper
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             String jsonRequest = objectMapper.writeValueAsString(requestMap);
-            System.out.println("JSON Request: " + jsonRequest);
+            LOGGER.info("JSON Request: {}",jsonRequest);
 
             // Prepare HttpEntity with headers and body
             HttpEntity<String> entity = new HttpEntity<>(jsonRequest, headers);
@@ -53,6 +56,7 @@ public class OptionChainServiceImpl implements OptionChainService {
 
         } catch (Exception e) {
             e.printStackTrace();
+            LOGGER.error("Error occurred when fetching the oc, the exception being ", e);
         }
         return optionChainResponse;
     }

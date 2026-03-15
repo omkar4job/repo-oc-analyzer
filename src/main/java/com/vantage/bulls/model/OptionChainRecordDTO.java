@@ -7,7 +7,15 @@ import java.time.LocalDateTime;
 @Table(name="nifty_option_chain")
 public class OptionChainRecordDTO {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.TABLE, generator = "oc_gen")
+    @TableGenerator(
+            name = "oc_gen",
+            table = "id_generator",         // Name of the table that will store the counter
+            pkColumnName = "gen_name",
+            valueColumnName = "gen_value",
+            pkColumnValue = "oc_id",
+            allocationSize = 50
+    )
     private Long id;
 
     @Column(name = "timestamp")
