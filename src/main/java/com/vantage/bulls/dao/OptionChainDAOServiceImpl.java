@@ -91,11 +91,8 @@ public class OptionChainDAOServiceImpl implements OptionChainDAO {
             }
 
             return dto;
-        }).collect(Collectors.toList());
-
-        optionChainRecordDTOS.parallelStream().forEach(record -> {
-            this.optionChainRepository.save(record);
-        });
+        }).filter(dto -> dto.getCeAvgPrice() != 0.0f && dto.getPeAvgPrice() != 0.0f)
+                .collect(Collectors.toList());
 
         this.optionChainRepository.saveAll(optionChainRecordDTOS);
 
