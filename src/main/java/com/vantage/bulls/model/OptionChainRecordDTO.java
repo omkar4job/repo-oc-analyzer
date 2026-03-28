@@ -67,6 +67,9 @@ public class OptionChainRecordDTO {
     @Column(name = "ce_avg_price")
     private Float ceAvgPrice;
 
+    @Column(name = "ce_volume_change")
+    private Long ceVolumeChange;
+
     // Put Options (PE)
     @Column(name = "pe_ltp")
     private Float peLTP;
@@ -107,15 +110,24 @@ public class OptionChainRecordDTO {
     @Column(name = "pe_avg_price")
     private Float peAvgPrice;
 
+    @Column(name = "pe_volume_change")
+    private Long peVolumeChange;
+
     // Ratios & Diffs
     @Column(name = "pcr")
-    private Integer pcr;
+    private Double pcr;
 
     @Column(name = "pc_oi_difference")
     private Long pcOiDiff;
 
     @Column(name = "pc_oi_change_difference")
     private Long pcOiChangeDiff;
+
+    @Column(name = "pc_volume_difference")
+    private Long pcVolumeDiff;
+
+    @Column(name = "pc_volume_change_difference")
+    private Long pcVolumeChangeDiff;
 
     public Long getId() {
         return id;
@@ -357,11 +369,11 @@ public class OptionChainRecordDTO {
         this.peAvgPrice = peAvgPrice;
     }
 
-    public Integer getPcr() {
+    public Double getPcr() {
         return pcr;
     }
 
-    public void setPcr(Integer pcr) {
+    public void setPcr(Double pcr) {
         this.pcr = pcr;
     }
 
@@ -379,5 +391,37 @@ public class OptionChainRecordDTO {
 
     public void setPcOiChangeDiff(Long pcOiChangeDiff) {
         this.pcOiChangeDiff = pcOiChangeDiff;
+    }
+
+    public Long getCeVolumeChange() {
+        return ceVolumeChange;
+    }
+
+    public void setCeVolumeChange(Long ceVolumeChange) {
+        this.ceVolumeChange = ceVolumeChange;
+    }
+
+    public Long getPeVolumeChange() {
+        return peVolumeChange;
+    }
+
+    public void setPeVolumeChange(Long peVolumeChange) {
+        this.peVolumeChange = peVolumeChange;
+    }
+
+    public Long getPcVolumeDiff() {
+        return pcVolumeDiff;
+    }
+
+    public void setPcVolumeDiff(Long pcVolumeDiff) {
+        this.pcVolumeDiff = pcVolumeDiff;
+    }
+
+    public Long getPcVolumeChangeDiff() {
+        return pcVolumeChangeDiff;
+    }
+
+    public void setPcVolumeChangeDiff(Long pcVolumeChangeDiff) {
+        this.pcVolumeChangeDiff = pcVolumeChangeDiff;
     }
 }
