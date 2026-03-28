@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vantage.bulls.dto.OptionChainResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -17,10 +18,29 @@ import java.util.Map;
 public class OptionChainServiceImpl implements OptionChainService {
     private static final Logger LOGGER = LoggerFactory.getLogger(OptionChainServiceImpl.class);
 
-    private String hostName = "https://api.dhan.co";
+    /*private String hostName = "https://api.dhan.co";
     private String apiEndpoint = "/v2/optionchain";
     private String clientId = "1107674922";
-    private String accessToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJkaGFuIiwicGFydG5lcklkIjoiIiwiZXhwIjoxNzczODk5NTYyLCJpYXQiOjE3NzM4MTMxNjIsInRva2VuQ29uc3VtZXJUeXBlIjoiU0VMRiIsIndlYmhvb2tVcmwiOiIiLCJkaGFuQ2xpZW50SWQiOiIxMTA3Njc0OTIyIn0.nYQM_Nl3TalO-G5nh1cUgr0uP169jkCy_9JvW5aJ6ad0fk_MBWiqXYvWl1DxwCL3mk7NyICeXafBg3hXb8lBow";
+    private String accessToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJkaGFuIiwicGFydG5lcklkIjoiIiwiZXhwIjoxNzczNjYyNTY4LCJpYXQiOjE3NzM1NzYxNjgsInRva2VuQ29uc3VtZXJUeXBlIjoiU0VMRiIsIndlYmhvb2tVcmwiOiIiLCJkaGFuQ2xpZW50SWQiOiIxMTA3Njc0OTIyIn0.uTuID6lGlK-8lJ6KDmSbaU-BaoPcYQUGbBwpL_8qdeYfxtEdRvozBiYNe_445w2rLLa1kyoujoCF7AoeVO4XCA";
+*/
+
+    @Value("${dhan.api.host}")
+    private String hostName;
+
+    @Value("${dhan.api.endpoint}")
+    private String apiEndpoint;
+
+    @Value("${dhan.api.client-id}")
+    private String clientId;
+
+    @Value("${dhan.api.access-token}")
+    private String accessToken;
+
+    @Value("${dhan.api.oc.payload.underlyingScrip}")
+    private String underlyingScrip;
+
+    @Value("${dhan.api.oc.payload.underlyingSeg}")
+    private String underlyingSeg;
 
 
     @Override
@@ -39,9 +59,9 @@ public class OptionChainServiceImpl implements OptionChainService {
 
         // Create request map
         Map<String, Object> requestMap = new HashMap<>();
-        requestMap.put("UnderlyingScrip", 26000);
-        requestMap.put("UnderlyingSeg", "NSE_FNO");
-        requestMap.put("Expiry", "2026-03-24");
+        requestMap.put("UnderlyingScrip", underlyingScrip);
+        requestMap.put("UnderlyingSeg", underlyingSeg);
+        requestMap.put("Expiry", "2026-03-17");
 
         // Convert map to JSON using Jackson ObjectMapper
         ObjectMapper objectMapper = new ObjectMapper();
