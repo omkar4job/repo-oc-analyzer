@@ -31,13 +31,14 @@ public class OptionChainSchedulerImpl implements OptionChainScheduler {
         LocalTime now = LocalTime.now(IST);
 
         // 1. Wait until exactly 9:15:00 AM IST
-        if (now.isBefore(LocalTime.of(9, 15, 0))) {
+        //if (now.isBefore(LocalTime.of(9, 15, 0))) {
+        if (now.isBefore(LocalTime.of(0, 15, 0))) {
             LOGGER.info("Current time is {}, waiting for 9:15:00 AM IST...", now);
             return;
         }
 
         // 2. Stop exactly at 3:30:00 PM IST (15:30)
-        if (now.isAfter(LocalTime.of(19, 48, 0))) {
+        if (now.isAfter(LocalTime.of(15, 30, 0))) {
             LOGGER.info("Fetching OC data stopped at 3:30:00 PM IST. Shutting down application.");
             System.exit(0);
             return;
