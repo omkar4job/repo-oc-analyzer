@@ -59,8 +59,8 @@ public class OptionChainServiceImpl implements OptionChainService {
 
         // Create request map
         Map<String, Object> requestMap = new HashMap<>();
-        requestMap.put("UnderlyingScrip", 26000);
-        requestMap.put("UnderlyingSeg", "NSE_FNO");
+        requestMap.put("UnderlyingScrip", underlyingScrip);
+        requestMap.put("UnderlyingSeg", underlyingSeg);
         requestMap.put("Expiry", "2026-03-17");
 
         // Convert map to JSON using Jackson ObjectMapper
