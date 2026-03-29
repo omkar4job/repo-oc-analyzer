@@ -2,9 +2,11 @@ package com.vantage.bulls.service;
 
 import com.vantage.bulls.dao.OptionChainDAO;
 import com.vantage.bulls.dto.OptionChainResponse;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +18,22 @@ public class OptionChainSchedulerImpl implements OptionChainScheduler {
     private static final Logger LOGGER = LoggerFactory.getLogger(OptionChainSchedulerImpl.class);
     private static final ZoneId IST = ZoneId.of("Asia/Kolkata");
 
+    @Value("${market.start.time:09:15:00}")
+    private String startTimeStr;
+
+    @Value("${market.end.time:15:30:00}")
+    private String endTimeStr;
+
+    private LocalTime marketStartTime;
+    private LocalTime marketEndTime;
+
+    @PostConstruct
+    public void init() {
+        // Parse once at startup
+        this.marketStartTime = LocalTime.parse(startTimeStr);
+        this.marketEndTime = LocalTime.parse(endTimeStr);
+    }
+
     @Autowired
     private OptionChainService ocService;
 
@@ -23,23 +41,20 @@ public class OptionChainSchedulerImpl implements OptionChainScheduler {
     private OptionChainDAO ocDAOService;
 
     @Override
-    // Corrected 6-field cron: Seconds, Minutes, Hours, DayOfMonth, Month, DayOfWeek
-    //@Scheduled(cron = "0/4 * 9-15 * * MON-FRI", zone = "Asia/Kolkata")
     @Scheduled(fixedDelay = 4000)
     public void processOptionChain() {
 
         LocalTime now = LocalTime.now(IST);
 
         // 1. Wait until exactly 9:15:00 AM IST
-        //if (now.isBefore(LocalTime.of(9, 15, 0))) {
-        if (now.isBefore(LocalTime.of(0, 15, 0))) {
-            LOGGER.info("Current time is {}, waiting for 9:15:00 AM IST...", now);
+        if (now.isBefore(marketStartTime)) {
+            LOGGER.info("Current time is {}, hence, waiting for {} AM IST for market to start...", now, marketStartTime);
             return;
         }
 
         // 2. Stop exactly at 3:30:00 PM IST (15:30)
-        if (now.isAfter(LocalTime.of(15, 30, 0))) {
-            LOGGER.info("Fetching OC data stopped at 3:30:00 PM IST. Shutting down application.");
+        if (now.isAfter(marketEndTime)) {
+            LOGGER.info("Fetching OC data stopped at {} as currently time is {} and market is closed. Shutting down application.",marketEndTime, now);
             System.exit(0);
             return;
         }
