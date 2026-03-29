@@ -4,9 +4,11 @@ import com.vantage.bulls.dto.OptionChainResponse;
 import com.vantage.bulls.dto.OptionStrikeData;
 import com.vantage.bulls.dto.ResponseData;
 import com.vantage.bulls.model.OptionChainRecordDTO;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -33,7 +35,15 @@ public class OptionChainDAOServiceImpl implements OptionChainDAO {
     @Autowired
     private ApplicationEventPublisher eventPublisher;
 
-    private static final LocalTime MARKET_OPEN_THRESHOLD = LocalTime.of(0, 0, 0);
+    @Value("${market.oi.calculation.threshold.time:15:30:00}")
+    private String marketThresholdTimeForOICalcStr;
+
+    private LocalTime marketThresholdTimeForOICalculation;
+
+    @PostConstruct
+    public void init(){
+        marketThresholdTimeForOICalculation = LocalTime.parse(marketThresholdTimeForOICalcStr);
+    }
 
     @Override
     @Transactional
@@ -59,9 +69,9 @@ public class OptionChainDAOServiceImpl implements OptionChainDAO {
                 dto.setCeOi(data.ce.oi);
                 //dto.setCeOiChange(data.ce.oi - data.ce.previousOi); // Calculating change
                 dto.setCeImpliedVolatility(data.ce.impliedVolatility != null ? data.ce.impliedVolatility.floatValue() : 0f);
-                dto.setCePrevOi(data.ce.previousOi);
+                dto.setCePrevOi(data.ce.previousOi != null ? data.ce.previousOi.longValue() : 0L);
                 dto.setCePrevClosePrice(data.ce.previousClosePrice != null ? data.ce.previousClosePrice.floatValue() : 0f);
-                dto.setCePrevVolume(data.ce.previousVolume);
+                dto.setCePrevVolume(data.ce.previousVolume != null ? data.ce.previousVolume.longValue() : 0L);
                 dto.setCeAvgPrice(data.ce.averagePrice != null ? data.ce.averagePrice.floatValue() : 0f);
 
                 if (data.ce.greeks != null) {
@@ -79,9 +89,9 @@ public class OptionChainDAOServiceImpl implements OptionChainDAO {
                 dto.setPeOi(data.pe.oi);
                 //dto.setPeOiChange(data.pe.oi - data.pe.previousOi);
                 dto.setPeImpliedVolatility(data.pe.impliedVolatility != null ? data.pe.impliedVolatility.floatValue() : 0f);
-                dto.setPePrevOi(data.pe.previousOi);
+                dto.setPePrevOi(data.pe.previousOi != null ? data.pe.previousOi.longValue() : 0L);
                 dto.setPePrevClosePrice(data.pe.previousClosePrice != null ? data.pe.previousClosePrice.floatValue() : 0f);
-                dto.setPePrevVolume(data.pe.previousVolume);
+                dto.setPePrevVolume(data.pe.previousVolume != null ? data.pe.previousVolume.longValue() : 0L);
                 dto.setPeAvgPrice(data.pe.averagePrice != null ? data.pe.averagePrice.floatValue() : 0f);
 
                 if (data.pe.greeks != null) {
@@ -168,7 +178,7 @@ public class OptionChainDAOServiceImpl implements OptionChainDAO {
         // CE Calculations
         long ceOiChange = 0L;
         if (curr.getCeOi() != null && prev.getCeOi() != null) {
-            if (currentTime.isBefore(MARKET_OPEN_THRESHOLD)) {
+            if (currentTime.isBefore(marketThresholdTimeForOICalculation)) {
                 // Logic: currentOI - previousDayChange
                 long prevDayOI = (curr.getCePrevOi() != null) ? curr.getCePrevOi() : 0L;
                 ceOiChange = curr.getCeOi() - prevDayOI;
@@ -181,7 +191,7 @@ public class OptionChainDAOServiceImpl implements OptionChainDAO {
         }
         long ceVolumeChange = 0L;
         if (curr.getCeVolume() != null && prev.getCeVolume() != null) {
-            if (currentTime.isBefore(MARKET_OPEN_THRESHOLD)) {
+            if (currentTime.isBefore(marketThresholdTimeForOICalculation)) {
                 long prevDayVolume = (curr.getCePrevVolume() != null) ? curr.getCePrevVolume() : 0L;
                 ceVolumeChange = curr.getCeVolume() - prevDayVolume;
             } else {
@@ -193,7 +203,7 @@ public class OptionChainDAOServiceImpl implements OptionChainDAO {
         // PE Calculations
         long peOiChange = 0L;
         if (curr.getPeOi() != null && prev.getPeOi() != null) {
-            if (currentTime.isBefore(MARKET_OPEN_THRESHOLD)) {
+            if (currentTime.isBefore(marketThresholdTimeForOICalculation)) {
                 // Logic: currentOI - previousChange
                 long prevDayOI = (curr.getPePrevOi() != null) ? curr.getPePrevOi() : 0L;
                 peOiChange = curr.getPeOi() - prevDayOI;
@@ -205,7 +215,7 @@ public class OptionChainDAOServiceImpl implements OptionChainDAO {
         }
         long peVolumeChange = 0L;
         if (curr.getPeVolume() != null && prev.getPeVolume() != null) {
-            if (currentTime.isBefore(MARKET_OPEN_THRESHOLD)) {
+            if (currentTime.isBefore(marketThresholdTimeForOICalculation)) {
                 long prevDayVolume = (curr.getPePrevVolume() != null) ? curr.getPePrevVolume() : 0L;
                 peVolumeChange = curr.getPeVolume() - prevDayVolume;
             } else {
